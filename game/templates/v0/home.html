@@ -1,0 +1,76 @@
+{% extends "v0/base.html" %}
+{% block body %}
+ <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">PingPong Game</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+             <li class='active'><a href="/home">Welcome {{ user.username }}</a></li>
+            <li><a href="/logout/">Logout</a><li>
+          </ul>
+        </div>
+      </div>
+    </nav>  
+    <div class="jumbotron">
+      <div class="container">
+      </div>
+  </div>
+      <div class="container">
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="col-md-12" >
+        {% if current_user_role == "refree" %}
+          <div class="table-responsive">
+   <table class="table">
+      <h3>Ping Pong Details</h3>
+      <thead>
+         <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Game Role</th>
+            <th>Game id</th>
+            <th>Game Round</th>
+            <th>Status</th>
+            <th>Defender Value</th>
+            <th>Points</th>
+            <th>Final Result</th>
+
+         </tr>
+      </thead>
+        <tbody class="searchable">
+        {% for user_data in users %}
+     <tr>
+  <td>{{ user_data.user.user.username }}</td>
+  <td>{{ user_data.user.role }}</td>   
+  <td>{{ user_data.game_role }}</td>
+  <td>{{ user_data.game_id }}</td>
+  <td>{{ user_data.game_round }}</td>
+  {% if user_data.status == "Joined" %}
+    <td ><span class="label label-success">{{ user_data.status }}</span></td>
+  {% else %}  
+     <td><span class="label label-warning">{{ user_data.status }}</span></td> 
+  {% endif %} 
+  <td>{{ user_data.dvalue }}</td>
+  <td>{{ user_data.result }}</td>
+   <td>{{ user_data.game_result }}</td>
+</tr>
+{% endfor %}
+    </tbody>
+   </table>
+</div>    
+      </div>
+    </div>
+    {% endif %} 
+
+    </div>  
+{% endblock %}
+{% block dependency %}
+{% endblock dependency %}

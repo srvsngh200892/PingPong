@@ -1,0 +1,159 @@
+{% extends "v0/base.html" %}
+{% block body %}
+ <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">PingPong Game</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+             <li class='active'><a href="/home">Welcome {{ current_user.username }}</a></li>
+            <li><a href="/logout/">Logout</a><li>
+          </ul>
+        </div>
+      </div>
+    </nav> 
+    {% if user.game_result != 'looser' %}
+    <div class="jumbotron">
+      <div class="container">
+        {% if opponent_data.status != 'Joined' and user.game_role == 'defender' %}
+        <h3>You Vs {{opponent_data.user.user.username}}. Oponnent Status: {{opponent_data.status |default:"Not Joined Yet. Please Wait!!"}} <a href="/game">Check Status</a></h3>
+        {% elif user.game_role == 'defender' %}  
+        <h3>Note Please enter {{array_len}} random digit number "comma seprated" to create array </h3
+        <h3>You Vs {{opponent_data.user.user.username}}. Oponnent Status: {{opponent_data.status |default:"Not Joined Yet. Please Wait!!"}}. Now You can Play</h3>
+        {% endif %}
+        {% if user.game_status == 'winner'%}
+          <h3>Your are winner</h3>
+        {% elif opponent_data.status == 'winner' %}
+        <h3>Your Opponnent Won</h3>
+        {% elif user.game_role == 'attacker' %}
+          <h3 class='text-center'> <a  href="/game">Check status </a></h3>
+        {% endif %}  
+      </div>
+  </div>
+    <div class="container">
+      <div class="row">
+        <form class="form-horizontal update-task" action="." method="post"> {% csrf_token %}
+          <div class="col-md-2"></div>
+          <div class="col-md-8">
+            <div class="row">
+               <div class="col-sm-6">          
+                   <div class="form-group">
+                      <label class="col-sm-4 control-label" for="title">Name</label>
+                      <div class="col-sm-8">
+                          <input type="text" class="form-control" name = "name"  value='{{current_user.username|default_if_none:""}}' readonly>
+                      </div>
+                  </div>
+               </div>
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label class="col-sm-4 control-label" for="role">Role</label>
+                  <div class="col-sm-8">
+                      <div class="col-sm-8">
+                        <input  type="text" name="role"  id="role" value='{{user.user.role |default_if_none:""}}' readonly>
+                      </div>
+                  </div>
+                </div>
+            </div>
+          </div>
+          <div class="row">
+               <div class="col-sm-6">          
+                   <div class="form-group">
+                      <label class="col-sm-4 control-label" for="point">Point</label>
+                      <div class="col-sm-8">
+                          <input type="text" class="form-control" name = "point" id="point" value='{{user.result|default_if_none:""}}' readonly>
+                      </div>
+                  </div>
+               </div>
+              <div class="col-sm-6">          
+                   <div class="form-group">
+                      <label class="col-sm-4 control-label" for="gm_id">Game Id</label>
+                      <div class="col-sm-8">
+                          <input type="text" class="form-control" name = "gm_id" id="gm_id" value='{{user.game_id|default_if_none:""}}' readonly>
+                      </div>
+                  </div>
+               </div>
+          </div> 
+        <div class="row">
+           <div class="col-sm-6">          
+                   <div class="form-group">
+                      <label class="col-sm-4 control-label" for="gm_role">Game Role</label>
+                      <div class="col-sm-8">
+                          <input type="text" class="form-control" name = "gm_role" id="gm_role" value='{{user.game_role|default_if_none:""}}' readonly>
+                      </div>
+                  </div>
+               </div>
+            <div class="col-sm-6">          
+                   <div class="form-group">
+                      <label class="col-sm-4 control-label" for="gm_round">Game Round</label>
+                      <div class="col-sm-8">
+                          <input type="text" class="form-control" name = "gm_round" id="gm_round" value='{{user.game_round|default_if_none:""}}' readonly>
+                      </div>
+                  </div>
+               </div>
+          </div>
+          <div class="row">
+        <div class="col-sm-6">
+                <div class="form-group">
+                {% if user.game_role == "attacker" %}
+                  <label class="col-sm-4 control-label" for="value">Value</label>
+                  <div class="col-sm-8">
+                      <div class="col-sm-8">
+                        <input  type="text" placeholder="enter attacking value" name="value"  id="value" required>
+                      </div>
+                  </div>
+                {% else %} 
+                  <label class="col-sm-4 control-label" for="darray">Enter Array value</label>
+                  <div class="col-sm-8">
+                      <div class="col-sm-8">
+                        <input  type="text" placeholder="enter to create array" name="darray"  id="darray" maxlength="{{array_len}}" required>
+                      </div>
+                  </div>
+                {% endif %}  
+                </div>
+            </div>
+            </div>               
+          <div class="row">
+             <div class="form-group">
+                <div class="col-sm-offset-5 col-sm-7">
+                  {% if user.game_role == "attacker" and user.result < 5 %}
+                    <button type="submit" class="btn btn-primary">submit</button>
+                  {% elif user.game_role == "attacker" and user.result == 5 %}
+                    <h4>You Won <a href="/game">Check Oppoent for next Round</a></h4> 
+                  {% elif opponent_data.game_result == 5 %}  
+                  <h2>Your oppenent Won</h2>
+                  {% endif %}
+                  {% if user.game_role == "defender" and user.result < 5 %}
+                    <button type="submit" class="btn btn-primary defender">submit</button>
+                  {% elif user.game_role == "defender" and user.result == 5 %}
+                    <h4 class='text-center'>You Won <a href="/game">Check Oppoent for next Round</a></h4> 
+                  {% elif opponent_data.game_result == 5 %}  
+                  <h2>Your oppenent Won</h2>  
+                  {% endif %}
+                </div>
+              </div>
+          </div>
+        </div>
+      <div class="col-md-2"></div>
+    </form>
+
+  </div>
+  </div>  
+  {% else %}
+  <h2 style="margin:40px;" class="text-center"> You are out of game </h2>
+  {% endif %}
+  
+{% include "v0/portal/modal.html" %}
+{% include "v0/portal/waiting_modal.html" %}
+{% endblock %}
+
+{% block dependency%}
+<script src="/static/v0/js/portal/utils.js"></script>
+<script src="/static/v0/js/portal/main.js"></script>
+{% endblock dependency %}
